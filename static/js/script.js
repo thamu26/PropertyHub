@@ -143,11 +143,15 @@ const PROPERTIES = [
 const state = {
   properties: PROPERTIES.slice(),
   wishlist: new Set([1,8]),
-  isAuthed: true,
-  user:{
-    id:"u1", name:"Aditya Rao", email:"aditya.rao@example.com", phone:"+91 91234 56780",
-    role:"Property Owner", joined:"January 2025", initials:"AR"
-  },
+  isAuthed: JSON.parse(localStorage.getItem("isAuthed")) || false,
+  user: JSON.parse(localStorage.getItem("user")) || {
+    id:"",
+    name:"",
+    email:"",
+    phone:"",
+    role:"Buyer",
+    initials:""
+},
   filters:{ city:"any", type:"any", price:"any", beds:"any", q:"" },
   sort:"newest",
   galleryIndex:0,
@@ -249,7 +253,8 @@ function Navbar(active, light){
         <a class="nav-link" onclick="navigate('listings')">Browse Properties</a>
         <a class="nav-link" onclick="navigate('add-property')">List Property</a>
         <a class="nav-link" onclick="navigate('dashboard')">Dashboard</a>
-        ${state.isAuthed ? `<a class="nav-link" onclick="navigate('login')">Sign out</a>` : `<a class="nav-link" onclick="navigate('login')">Sign in</a>`}
+        ${state.isAuthed
+    ? `<a class="nav-link" onclick="logout()">Sign out</a>` : `<a class="nav-link" onclick="navigate('login')">Sign in</a>`}
       </div>
     </div>
   </header>`;
@@ -455,11 +460,11 @@ function PageLogin(){
       <form onsubmit="handleLogin(event)">
         <div class="form-row">
           <label>Email address</label>
-          <input type="email" placeholder="you@example.com" value="aditya.rao@example.com" required>
+          <input id="login_email" type="email" placeholder="you@example.com" required>
         </div>
         <div class="form-row">
           <label>Password</label>
-          <input type="password" placeholder="••••••••" value="propertyhub123" required>
+          <input id="login_password" type="password" placeholder="••••••••" required>
         </div>
         <button class="btn btn-gold btn-block" type="submit">Sign In</button>
       </form>
@@ -470,18 +475,78 @@ function PageLogin(){
   </div>
   `;
 }
-function handleLogin(ev){
-  ev.preventDefault();
-  state.isAuthed = true;
-  toast('Welcome back, ' + state.user.name.split(' ')[0] + '!', 'check');
-  navigate('dashboard');
-}
-function handleGuestLogin(){
+async function handleLogin(ev) {
+    ev.preventDefault();
+
+    const data = {
+        email: document.getElementById("login_email").value,
+        password: document.getElementById("login_password").value
+    };
+
+    try {
+
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        alert(result.message);
+
+        if (response.ok) {
+
+            state.isAuthed = true;
+
+            state.user = {
+                id: result.user.id,
+                name: result.user.name,
+                email: result.user.email,
+                initials: result.user.name
+                    .split(" ")
+                    .map(n => n[0])
+                    .join("")
+                    .toUpperCase()
+            };
+
+            localStorage.setItem("isAuthed", true);
+    localStorage.setItem("user", JSON.stringify(state.user));
+
+            navigate("dashboard");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Something went wrong!");
+    }
+}function handleGuestLogin(){
   state.isAuthed = true;
   toast('Signed in as guest', 'check');
   navigate('home');
 }
+function logout() {
 
+    localStorage.removeItem("isAuthed");
+    localStorage.removeItem("user");
+
+    state.isAuthed = false;
+
+    state.user = {
+        id: "",
+        name: "",
+        email: "",
+        phone: "",
+        role: "Buyer",
+        initials: ""
+    };
+
+    alert("Logged out successfully");
+
+    navigate("login");
+}
 function PageRegister(){
   return `
   ${Navbar('register', true)}
@@ -982,6 +1047,7 @@ function PageDashboard(section){
             <div class="name">${state.user.name}</div>
             <div class="role">${state.user.role}</div>
           </div>
+        
           <nav class="dash-nav">
             ${navItems.map(n=>`<a class="dash-nav-item ${section===n.key?'active':''}" onclick="navigate('dashboard/${n.key}')">${icon(n.icon)} ${n.label}</a>`).join('')}
           </nav>
