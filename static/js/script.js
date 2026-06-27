@@ -840,39 +840,39 @@ function PageAddProperty(){
       <form onsubmit="handleAddProperty(event)">
         <div class="dash-panel" style="margin-bottom:20px;">
           <h3 style="font-size:18px;">Basic Information</h3>
-          <div class="form-light-row"><label>Property Title</label><input type="text" placeholder="e.g. Sunset Heights Apartment" required></div>
+          <div class="form-light-row"><label>Property Title</label><input id="title" type="text" placeholder="e.g. Sunset Heights Apartment" required></div>
           <div class="form-split" style="margin-bottom:0;">
             <div class="form-light-row"><label>Property Type</label>
-              <select required><option value="">Select type</option><option>Apartment</option><option>Villa</option><option>Penthouse</option><option>House</option><option>Studio</option></select>
+              <select id="property_type" required><option value="">Select type</option><option>Apartment</option><option>Villa</option><option>Penthouse</option><option>House</option><option>Studio</option></select>
             </div>
             <div class="form-light-row"><label>Listing Type</label>
-              <select required><option value="">Select</option><option>For Sale</option><option>For Rent</option></select>
+              <select id="listing_type" required><option value="">Select</option><option>For Sale</option><option>For Rent</option></select>
             </div>
           </div>
         </div>
 
         <div class="dash-panel" style="margin-bottom:20px;">
           <h3 style="font-size:18px;">Location</h3>
-          <div class="form-light-row"><label>City</label><input type="text" placeholder="e.g. Pune" required></div>
-          <div class="form-light-row"><label>Full Address</label><input type="text" placeholder="Street, locality, landmark" required></div>
+          <div class="form-light-row"><label>City</label><input id="city" type="text" placeholder="e.g. Pune" required></div>
+          <div class="form-light-row"><label>Full Address</label><input id="address" type="text" placeholder="Street, locality, landmark" required></div>
         </div>
 
         <div class="dash-panel" style="margin-bottom:20px;">
           <h3 style="font-size:18px;">Specifications</h3>
           <div class="form-split">
-            <div class="form-light-row"><label>Price (₹)</label><input type="number" placeholder="e.g. 8500000" required></div>
-            <div class="form-light-row"><label>Area (sq.ft)</label><input type="number" placeholder="e.g. 1600" required></div>
+            <div class="form-light-row"><label>Price (₹)</label><input id="price" type="number" placeholder="e.g. 8500000" required></div>
+            <div class="form-light-row"><label>Area (sq.ft)</label><input id="area" type="number" placeholder="e.g. 1600" required></div>
           </div>
           <div class="form-split" style="margin-bottom:0;">
-            <div class="form-light-row"><label>Bedrooms</label><input type="number" placeholder="e.g. 3" required></div>
-            <div class="form-light-row"><label>Bathrooms</label><input type="number" placeholder="e.g. 2" required></div>
+            <div class="form-light-row"><label>Bedrooms</label><input id="beds" type="number" placeholder="e.g. 3" required></div>
+            <div class="form-light-row"><label>Bathrooms</label><input id="baths" type="number" placeholder="e.g. 2" required></div>
           </div>
         </div>
 
         <div class="dash-panel" style="margin-bottom:20px;">
           <h3 style="font-size:18px;">Description</h3>
           <div class="form-light-row" style="margin-bottom:0;">
-            <textarea rows="4" placeholder="Describe the property — layout, finishes, neighbourhood..." required></textarea>
+            <textarea id="description" rows="4" placeholder="Describe the property — layout, finishes, neighbourhood..." required></textarea>
           </div>
         </div>
 
@@ -913,24 +913,38 @@ function handlePhotoPreview(ev){
     strip.appendChild(img);
   });
 }
-function handleAddProperty(ev){
-  ev.preventDefault();
-  const newProp = {
-    id: Math.max(...state.properties.map(p=>p.id)) + 1,
-    title:"New Listing (Pending Review)", type:"Apartment", listingType:"sale", city:"Pune",
-    address:"Submitted by you, pending verification", price:5000000, priceLabel:"₹50.0 L",
-    beds:2, baths:2, area:1000, featured:false, status:"pending", views:0, ownerId: state.user.id,
-    posted: new Date().toISOString().slice(0,10),
-    images:["https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1000&q=80&auto=format&fit=crop"],
-    description:"This listing is awaiting review by our team.",
-    amenities:["Power Backup","Lift"],
-    agent: { name: state.user.name, role:"Owner", phone: state.user.phone, email: state.user.email }
-  };
-  state.properties.unshift(newProp);
-  toast('Listing submitted for review', 'check');
-  navigate('dashboard');
-}
+async function handleAddProperty(ev) {
+    ev.preventDefault();
 
+    const data = {
+        title: document.getElementById("title").value,
+        city: document.getElementById("city").value,
+        address: document.getElementById("address").value,
+        price: document.getElementById("price").value,
+        description: document.getElementById("description").value
+    };
+
+    try {
+
+    const response = await fetch("/add_property", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    alert(result.message);
+
+} catch (error) {
+
+    console.error(error);
+    alert("Something went wrong!");
+
+}
+}
 function PageDashboard(section){
   section = section || 'overview';
   const my = state.properties.filter(p=>p.ownerId === state.user.id);
@@ -1064,6 +1078,24 @@ function handleProfileSave(ev){
   toast('Profile updated', 'check');
 }
 
+async function loadProperties() {
+
+    try {
+
+        const response = await fetch("/properties");
+
+        const properties = await response.json();
+
+        console.log(properties);
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
 /* ============ ROUTER ============ */
 function render(){
   const hash = window.location.hash.replace(/^#\/?/, '') || 'home';
@@ -1085,3 +1117,4 @@ function render(){
 window.addEventListener('hashchange', render);
 window.addEventListener('DOMContentLoaded', render);
 render();
+loadProperties();
