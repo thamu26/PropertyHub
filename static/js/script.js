@@ -1090,8 +1090,6 @@ async function loadProperties() {
 
         const properties = await response.json();
 
-        console.log(properties);
-
         state.properties = properties;
 
         render();

@@ -42,13 +42,27 @@ def get_properties():
 
     for p in properties:
         property_list.append({
-            "id": p.id,
-            "title": p.title,
-            "city": p.city,
-            "address": p.address,
-            "price": p.price,
-            "description": p.description,
-            "image": p.image
-        })
+    "id": p.id,
+    "title": p.title,
+
+    "type": p.property_type or "Apartment",
+    "listingType": (p.listing_type or "sale").lower(),
+
+    "city": p.city,
+    "address": p.address,
+
+    "price": p.price,
+    "priceLabel": f"₹{p.price:,.0f}",
+
+    "beds": p.bedrooms or 0,
+    "baths": p.bathrooms or 0,
+    "area": p.area or 0,
+
+    "description": p.description,
+
+    "images": [
+        p.image if p.image else "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1000&q=80&auto=format&fit=crop"
+    ]
+})
 
     return jsonify(property_list), 200
