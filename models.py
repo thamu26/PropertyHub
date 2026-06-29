@@ -18,14 +18,31 @@ class Property(db.Model):
     __tablename__ = "properties"
 
     id = db.Column(db.Integer, primary_key=True)
+
     title = db.Column(db.String(200), nullable=False)
+    property_type = db.Column(db.String(100))
+    listing_type = db.Column(db.String(50))
+
     city = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(255), nullable=False)
+
     price = db.Column(db.Float, nullable=False)
+    area = db.Column(db.Float)
+
+    bedrooms = db.Column(db.Integer)
+    bathrooms = db.Column(db.Integer)
+
     description = db.Column(db.Text, nullable=False)
-    image = db.Column(db.String(255), nullable=True)
+
+    amenities = db.Column(db.Text)
+
+    image = db.Column(db.String(255))
+
+    status = db.Column(db.String(50), default="Pending")
 
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
         return f"<Property {self.title}>"

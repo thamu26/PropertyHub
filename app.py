@@ -1,10 +1,14 @@
+import os
 from flask import Flask, render_template
+from werkzeug.utils import secure_filename
 from database import db
 from models import User, Property
 from routes.auth import auth
 from routes.login import login
 
 app = Flask(__name__)
+UPLOAD_FOLDER = "static/uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config["SECRET_KEY"] = "propertyhub_secret_key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///propertyhub.db"

@@ -938,6 +938,10 @@ async function handleAddProperty(ev) {
 
     alert(result.message);
 
+    if (response.ok) {
+    navigate("dashboard");
+}
+
 } catch (error) {
 
     console.error(error);
@@ -1088,15 +1092,17 @@ async function loadProperties() {
 
         console.log(properties);
 
+        state.properties = properties;
+
+        render();
+
     } catch (error) {
 
         console.error(error);
 
     }
 
-}
-
-/* ============ ROUTER ============ */
+}/* ============ ROUTER ============ */
 function render(){
   const hash = window.location.hash.replace(/^#\/?/, '') || 'home';
   const parts = hash.split('/');
