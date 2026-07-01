@@ -917,12 +917,22 @@ async function handleAddProperty(ev) {
     ev.preventDefault();
 
     const data = {
-        title: document.getElementById("title").value,
-        city: document.getElementById("city").value,
-        address: document.getElementById("address").value,
-        price: document.getElementById("price").value,
-        description: document.getElementById("description").value
-    };
+    title: document.getElementById("title").value,
+
+    property_type: document.getElementById("property_type").value,
+    listing_type: document.getElementById("listing_type").value,
+
+    city: document.getElementById("city").value,
+    address: document.getElementById("address").value,
+
+    price: document.getElementById("price").value,
+    area: document.getElementById("area").value,
+
+    bedrooms: document.getElementById("beds").value,
+    bathrooms: document.getElementById("baths").value,
+
+    description: document.getElementById("description").value
+};
 
     try {
 

@@ -11,19 +11,37 @@ def add_property():
     data = request.get_json()
 
     title = data.get("title")
+
+    property_type = data.get("property_type")
+    listing_type = data.get("listing_type")
+
     city = data.get("city")
     address = data.get("address")
+
     price = data.get("price")
+    area = data.get("area")
+
+    bedrooms = data.get("bedrooms")
+    bathrooms = data.get("bathrooms")
+
     description = data.get("description")
 
     new_property = Property(
-        title=title,
-        city=city,
-        address=address,
-        price=price,
-        description=description
-    )
+    title=title,
+    property_type=property_type,
+    listing_type=listing_type,
 
+    city=city,
+    address=address,
+
+    price=price,
+    area=area,
+
+    bedrooms=bedrooms,
+    bathrooms=bathrooms,
+
+    description=description
+)
     db.session.add(new_property)
     db.session.commit()
 
@@ -45,18 +63,18 @@ def get_properties():
     "id": p.id,
     "title": p.title,
 
-    "type": p.property_type or "Apartment",
-    "listingType": (p.listing_type or "sale").lower(),
+    "type": p.property_type if p.property_type else "Apartment",
+    "listingType": "rent" if p.listing_type == "For Rent" else "sale",
 
     "city": p.city,
     "address": p.address,
 
     "price": p.price,
-    "priceLabel": f"₹{p.price:,.0f}",
+    "priceLabel": f"₹{int(p.price):,}",
 
-    "beds": p.bedrooms or 0,
-    "baths": p.bathrooms or 0,
-    "area": p.area or 0,
+    "beds": p.bedrooms if p.bedrooms else 0,
+    "baths": p.bathrooms if p.bathrooms else 0,
+    "area": p.area if p.area else 0,
 
     "description": p.description,
 
@@ -64,5 +82,4 @@ def get_properties():
         p.image if p.image else "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1000&q=80&auto=format&fit=crop"
     ]
 })
-
     return jsonify(property_list), 200
