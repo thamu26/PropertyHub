@@ -772,23 +772,28 @@ function PageDetails(id){
 
         <h3 class="h-display" style="font-size:21px;margin:28px 0 4px;">Amenities</h3>
         <div class="amenity-grid">
-          ${p.amenities.map(a=>`<div class="amenity-item"><span class="dot"></span>${a}</div>`).join('')}
+         ${(p.amenities || []).map(a=>`
+    <div class="amenity-item">
+        <span class="dot"></span>${a}
+    </div>
+`).join('')}
         </div>
       </div>
 
       <aside class="agent-card">
-        <div class="agent-top">
-          <div class="avatar">${p.agent.name.split(' ').map(w=>w[0]).join('')}</div>
-          <div>
-            <div class="agent-name">${p.agent.name}</div>
-            <div class="agent-role">${p.agent.role}</div>
-          </div>
+    <div class="agent-top">
+        <div class="avatar">PH</div>
+        <div>
+            <div class="agent-name">PropertyHub</div>
+            <div class="agent-role">Owner information will be available soon</div>
         </div>
-        <div class="contact-row">${icon('phone')} ${p.agent.phone}</div>
-        <div class="contact-row">${icon('mail')} ${p.agent.email}</div>
-        <button class="btn btn-gold btn-block" style="margin-top:8px;" onclick="openContactModal(${p.id})">Contact Owner</button>
-        <button class="btn btn-outline btn-block" style="margin-top:10px;" onclick="toggleWishlist(${p.id}, event)">${icon('heart')} ${wished?'Remove from Wishlist':'Add to Wishlist'}</button>
-      </aside>
+    </div>
+
+    <button class="btn btn-outline btn-block" style="margin-top:10px;"
+        onclick="toggleWishlist(${p.id}, event)">
+        ${icon('heart')} ${wished ? 'Remove from Wishlist' : 'Add to Wishlist'}
+    </button>
+</aside>
     </div>
 
     ${related.length ? `
